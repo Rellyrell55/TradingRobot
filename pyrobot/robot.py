@@ -25,11 +25,11 @@ class PyRobot():
         self.stock_frame: None
 
     def _create_session(self) -> TDClient:
-        td_client = TDClient{
+        td_client = TDClient(
             client_id=self.client_id, 
             redirect_uri=self.redirect_uri,
             credentials_path=self.credentials_path
-        }
+        )
         
         td_client.login()
         
