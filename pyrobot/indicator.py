@@ -62,4 +62,28 @@ class Indicators():
             lambda x: x.diff()
         )
         
-    
+    def rsi(self, period: int, method: str = 'wilders') -> pd.DataFrame: 
+         
+        locals_data = locals()
+        del locals_data['self']
+        
+        column_name = 'rsi'
+        self._current_indicators[column_name] = {}
+        self._current_indicators[column_name]['args'] = locals_data
+        self._current_indicators[column_name]['funk'] = self.rsi
+        
+        if 'change_in_price' not in self._frame.columns:
+            self.change_in_price()
+            
+        self._frame['up_day'] = self._price_groups['change_in_price'].transform(
+            lambda x: np.where(x >= 0, x, 0)
+        )
+        
+        self._frame['down_day'] = self._price_groups['change_in_price'].transform(
+            lambda x: np.where(x < 0, x.abs(), 0)
+        )
+        
+        self._frame['ewma_up'] = self._price_groups['up_day'].transform(
+            lambda x: np.where(x < 0, x.abs(), 0)
+        )
+        
