@@ -45,7 +45,7 @@ class Indicators():
     
     @price_data_frame.setter
     def price_data_frame(self, price_data_frame: pd.DataFrame) -> None:
-       
+
         self._frame = price_data_frame
         
     def change_in_price(self) -> pd.DataFrame:
@@ -56,7 +56,7 @@ class Indicators():
         column_name = 'change_in_price'
         self._current_indicators[column_name] = {}
         self._current_indicators[column_name]['args'] = locals_data
-        self._current_indicators[column_name]['funk'] = self.change_in_price
+        self._current_indicators[column_name]['func'] = self.change_in_price
         
         self._frame[column_name] = self._price_groups['close'].transform(
             lambda x: x.diff()
@@ -70,7 +70,7 @@ class Indicators():
         column_name = 'rsi'
         self._current_indicators[column_name] = {}
         self._current_indicators[column_name]['args'] = locals_data
-        self._current_indicators[column_name]['funk'] = self.rsi
+        self._current_indicators[column_name]['func'] = self.rsi
         
         if 'change_in_price' not in self._frame.columns:
             self.change_in_price()
@@ -87,3 +87,22 @@ class Indicators():
             lambda x: np.where(x < 0, x.abs(), 0)
         )
         
+        self._frame['ewma_up'] = self._price_groups['down_day'].transform(
+            lambda x: x.ewm(span=period).mean()
+        )
+
+        relative_strength = self._frame['ewma_up'] / self._frame['ewma_down']
+
+        relative_strength_index = 100.0 - (100.0 / (1.0 + relative_strength))
+
+        self._frame['rsi'] = np.wher(relative_strength_index == 0, 100, 100.0 - (100.0 / (1.0 +relative_strength)))
+
+        self._frame.drop(
+            labels = [ 'ewma_up', 'ewma_down', 'down_day', 'up_day', 'change_in_price'],
+            axis=1,
+            inplace = True
+        )
+        
+        return self._frame
+    
+    
