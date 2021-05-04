@@ -63,7 +63,7 @@ class Indicators():
         )
         
     def rsi(self, period: int, method: str = 'wilders') -> pd.DataFrame: 
-         
+
         locals_data = locals()
         del locals_data['self']
         
@@ -105,4 +105,19 @@ class Indicators():
         
         return self._frame
     
-    
+    def sma(self, period: int) -> pd.DataFrame:
+        
+        locals_data = locals()
+        del locals_data['self']
+
+        column_name = 'sma'
+        self._current_indicators[column_name] = {}
+        self._current_indicators[column_name]['args'] = locals_data
+        self._current_indicators[column_name]['func'] = self.sma
+
+        self._frame[column_name] = self._price_groups['close'].transform(
+            lambda x: x.rolling(window=period).mean()
+        )
+
+        return self._frame
+        
