@@ -136,3 +136,14 @@ class Indicators():
         )
 
         return self._frame
+
+    def refresh(self):
+
+        self._price_groups = self._stock_frame.symbol_groups
+
+        for indicator in self._current_indicators:
+
+            indicator_arguments = self._current_indicators[indicator]['args']
+            indicator_function = self._current_indicators[indicator]['func']
+
+            indicator_function(**indicator_arguments)
